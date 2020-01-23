@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 public class MainRoute extends RouteBuilder {
 
   private ExecutorService executorService = Executors.newFixedThreadPool(20);
+  private int BATCH_SIZE = 1000;
 
   public void configure() {
     from("file:src/main/resources/?fileName=data_4129.csv&noop=true&idempotent=false&delay=2000")
@@ -25,7 +26,7 @@ public class MainRoute extends RouteBuilder {
     from("direct:agg")
       .onCompletion().onWhen(header(Exchange.SPLIT_COMPLETE))
         .process(e -> {
-          int css = Integer.parseInt(e.getProperty(Exchange.SPLIT_SIZE).toString());
+          int css = (int) e.getProperty(Exchange.SPLIT_SIZE);
           MainProcessor mainProcessor = new MainProcessor();
           int c = mainProcessor.getCounter();
           log.info("CSS: {}, counter: {}", css, c);
@@ -36,7 +37,7 @@ public class MainRoute extends RouteBuilder {
       .end()
 
       .aggregate(constant(true), new ArrayListAggregationStrategy())
-        .completionSize(1000)
+        .completionSize(BATCH_SIZE)
         .completionPredicate(header(Exchange.SPLIT_COMPLETE))
         .eagerCheckCompletion()
 
