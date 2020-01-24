@@ -8,3 +8,4 @@
 * if you keep threads to 20, then remove the unmarshal line, things look better
 * it's almost like some exchanges are in-flight and never "complete" and then sometimes re-appear in the next iteration
 * the difference between the counts can be +ve or -ve; surprised to see MORE than 129 in the "last" batch
+* if i put an additional aggregation predicate, like completionTimeout(500), then it captures the "missing" items but on a different thread
